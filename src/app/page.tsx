@@ -56,13 +56,17 @@ export default function Home() {
   const [quote, setQuote] = useState<Quote | null>(null)
   const [backgroundColor, setBackgroundColor] = useState<string>('bg-red-500')
   const [fadeIn, setFadeIn] = useState<boolean>(true)
+  const [isDisabled, setIsDisabled] = useState<boolean>(false)
 
   const fetchNewQuote = () => {
+    if(isDisabled) return
+    setIsDisabled(true)
     setFadeIn(false)
     getQuote().then(data => {
       setQuote(data)
       setBackgroundColor(getBackgroundColor())
       setFadeIn(true)
+      setIsDisabled(false)
     })
   }
 
@@ -73,6 +77,10 @@ export default function Home() {
   useEffect(() => {
     setBackgroundColor(getBackgroundColor())
   }, [])
+
+  const handleTweetQuote = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if(isDisabled) e.preventDefault()
+  }
 
   return (
     <div className={`${backgroundColor} w-full h-screen flex flex-col justify-center items-center gap-4 transition-colors duration-500`}>
@@ -90,13 +98,14 @@ export default function Home() {
                 id="tweet-quote"
                 target="_blank"
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`"${quote.quote}" - ${quote.author}`)}`}
-                className={`mt-4 px-4 py-2 rounded-full bg-blue-900 hover:bg-blue-700 text-neutral-300 cursor-pointer ${fadeIn ? 'opacity-100' : 'opacity-0'} transition ease-in-out duration-500`}
+                className={`${isDisabled ? "cursor-default" : "cursor-pointer"} mt-4 px-4 py-2 rounded-full bg-blue-900 hover:bg-blue-700 text-neutral-300 ${fadeIn ? 'opacity-100' : 'opacity-0'} transition ease-in-out duration-500`}
+                onClick={handleTweetQuote}
               >
                 Tweet Quote
               </a>
               <div 
                 id="new-quote" 
-                className={`mt-4 px-4 py-2 rounded-full bg-red-900 hover:bg-red-700 text-neutral-300 cursor-pointer ${fadeIn ? 'opacity-100' : 'opacity-0'} transition ease-in-out duration-500`}
+                className={`${isDisabled ? "cursor-default" : "cursor-pointer"} mt-4 px-4 py-2 rounded-full bg-red-900 hover:bg-red-700 text-neutral-300 ${fadeIn ? 'opacity-100' : 'opacity-0'} transition ease-in-out duration-500`}
                 onClick={fetchNewQuote}
               >
                 New Quote
